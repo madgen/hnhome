@@ -1,0 +1,79 @@
+#!/usr/bin/env ruby
+
+require 'net/http'
+require 'uri'
+require 'nokogiri'
+
+LIST_FOLDER = Dir.home + "/.hnhome"
+LIST_PATH = LIST_FOLDER + "/hnhome"
+URL = "https://news.ycombinator.com/"
+
+def hnhome_store
+  return if Dir.exists?(LIST_FOLDER)
+  Dir.mkdir(LIST_FOLDER)
+end
+
+def news_home_response
+  uri = URI(URL)
+
+  http = Net::HTTP.new(uri.host, uri.port);
+  http.use_ssl = true
+  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+  req = Net::HTTP::Get.new(uri.request_uri)
+  
+  response = http.request(req)
+  response
+end
+
+def process_tlc(f,tlc,i)
+  title = tlc[1][0].css('.title a').text
+  comment_root = tlc[1][1].css('.subtext a')
+  link_root = tlc[1][0].css('.title a')[0]['href']
+  comment = if comment_root.empty?
+    link = URL + link_root 
+    comment_count = "N/A"
+    "none"
+  else
+    comment_count = comment_root[1].text
+    link = link_root
+    URL + comment_root[1]['href']
+  end
+
+  comment_text = comment_count == "N/A" ? "- N/A" : "- #{comment_count}"
+  
+  colorful_index = "\e[31m#{i+1})\e[0m"
+  puts "#{colorful_index} #{title} #{comment_text}"
+  f.puts "#{title}:mistral:#{link}:mistral:#{comment}"
+end
+
+def link_open(type)
+  i = (type == "link") ? ARGV[0].to_i : ARGV[1].to_i
+  raise ArgumentError.new("Index must be between 1 and 30") if i < 1 || i > 30
+  tlc = IO.readlines(LIST_PATH)[i - 1]
+  choice = (type == "link") ? 1 : 2
+  `open #{tlc.split(":mistral:")[choice]}`
+end  
+
+if ARGV.length == 0
+  if news_home_response.is_a?(Net::HTTPSuccess)
+    doc = Nokogiri::HTML(news_home_response.body)
+  else
+    raise "Shit happened."
+  end
+  arry = doc.css('table table tr')
+  arry = arry[1..89]
+  arry = arry.group_by {|e| arry.find_index(e) / 3}
+  
+  hnhome_store
+
+  File.open(LIST_PATH,"w") do |f|
+    arry.each_with_index {|tlc,i| process_tlc(f,tlc,i)}
+  end
+elsif ARGV.length == 1
+  link_open("link")
+elsif ARGV.length == 2 && (ARGV[0] == '-c' || ARGV[0] == '--comment')
+  link_open("comment")
+else
+  raise ArgumentError.new("Unidentified flying arguments.")
+end
