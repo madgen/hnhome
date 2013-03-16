@@ -10,9 +10,9 @@ You will need Ruby 1.9+ and RubyGems.
 
 It is simple really.
 
-`hnhome` : Gives you the first 30 items in the homepage. 
-`hnhome <index>` : Opens the indexed link in your default browser. 
-`hnhome -c/--comment <index>` : Opens comments page for the link. 
+`hnhome` : Gives you the first 30 items in the homepage.  
+`hnhome <index>` : Opens the indexed link in your default browser.  
+`hnhome -c/--comment <index>` : Opens comments page for the link.  
 
 ##Notes
 
