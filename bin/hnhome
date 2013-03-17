@@ -3,6 +3,7 @@
 require 'net/http'
 require 'uri'
 require 'nokogiri'
+require 'openssl'
 
 LIST_FOLDER = Dir.home + "/.hnhome"
 LIST_PATH = LIST_FOLDER + "/hnhome"
