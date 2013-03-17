@@ -7,7 +7,7 @@ Gem::Specification.new do |g|
   g.author      = "Mistral Contrastin"
   g.email       = "me@madgen.net"
   g.platform    = Gem::Platform::RUBY
-  g.homepage    = "http://rubygems.org/gems/hnhome"
+  g.homepage    = "https://github.com/madgen/hnhome"
 
   # dependenciees
   g.files       = ["lib/hnhome_version.rb", "bin/hnhome"]
